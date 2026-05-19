@@ -1,0 +1,8 @@
+# Environment file generated from .env.example — must never be committed.
+.env
+
+# macOS / editor cruft
+.DS_Store
+*.swp
+.idea/
+.vscode/

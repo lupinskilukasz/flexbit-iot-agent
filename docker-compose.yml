@@ -1,0 +1,113 @@
+# Flexbit IoT Agent — local deployment stack
+#
+# This compose file starts the agent together with the supporting
+# infrastructure (Mosquitto MQTT broker, InfluxDB 3 Core, Grafana) using
+# pre-built container images. No source code is required.
+#
+# Usage:
+#   cp .env.example .env        # fill in real values (or keep defaults)
+#   docker compose pull         # fetch the latest images
+#   docker compose up -d        # start the stack
+#   docker compose logs -f agent
+#
+# Endpoints exposed on the host:
+#   http://localhost:8080       Agent REST + admin UI + /metrics
+#   http://localhost:3000       Grafana (admin/admin)
+#   mqtt://localhost:1883       Mosquitto MQTT broker
+#   http://localhost:8181       InfluxDB 3 Core HTTP API
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: iot-mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+    restart: unless-stopped
+
+  influxdb:
+    image: influxdb:3-core
+    container_name: iot-influxdb
+    ports:
+      - "8181:8181"
+    command:
+      - influxdb3
+      - serve
+      - --node-id=node1
+      - --object-store=file
+      - --data-dir=/var/lib/influxdb3
+      - --without-auth
+    volumes:
+      - influxdb_data:/var/lib/influxdb3
+    restart: unless-stopped
+
+  # One-shot container that creates the `telemetry` database with a 30-day
+  # retention period on first start, and updates the retention if the database
+  # already exists. Exits cleanly once the database is ready.
+  influxdb-init:
+    image: influxdb:3-core
+    container_name: iot-influxdb-init
+    depends_on: [influxdb]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        until influxdb3 create database telemetry --retention-period 30d --host http://influxdb:8181 2>/dev/null
+        || influxdb3 update database --database telemetry --retention-period 30d --host http://influxdb:8181 2>/dev/null;
+        do echo "waiting for influxdb..."; sleep 2; done
+    restart: "no"
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    container_name: iot-grafana
+    depends_on: [influxdb]
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_INSTALL_PLUGINS: ""
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+
+  agent:
+    # Override IOT_AGENT_IMAGE in .env to pin a specific version, e.g.
+    #   IOT_AGENT_IMAGE=ghcr.io/lupinskilukasz/flexbit-iot-agent:0.1.0
+    image: ${IOT_AGENT_IMAGE:-ghcr.io/lupinskilukasz/flexbit-iot-agent:latest}
+    container_name: iot-agent
+    depends_on:
+      mosquitto:
+        condition: service_started
+      influxdb:
+        condition: service_started
+      influxdb-init:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      Influx__Token: ${INFLUX_TOKEN}
+      Influx__Url: http://influxdb:8181
+      Mqtt__Host: mosquitto
+      # Used to build the iframe URL on /admin/grafana. Change if you reverse
+      # proxy Grafana under a different hostname/port.
+      Admin__GrafanaBaseUrl: ${GRAFANA_BASE_URL:-http://localhost:3000}
+    volumes:
+      - agent_data:/var/lib/agent
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+
+volumes:
+  mosquitto_data: {}
+  mosquitto_log: {}
+  influxdb_data: {}
+  grafana_data: {}
+  agent_data: {}

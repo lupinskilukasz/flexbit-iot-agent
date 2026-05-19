@@ -1,0 +1,217 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "graphTooltip": 1,
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["iot-agent"],
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "IoT Agent — Telemetry Overview",
+  "uid": "iot-agent-overview",
+  "version": 2,
+  "templating": {
+    "list": [
+      {
+        "name": "table",
+        "label": "Property",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb-telemetry"
+        },
+        "query": "SELECT table_name FROM information_schema.tables WHERE table_schema = 'iox' ORDER BY table_name",
+        "refresh": 2,
+        "includeAll": false,
+        "multi": false,
+        "sort": 1,
+        "current": { "text": "power", "value": "power" }
+      },
+      {
+        "name": "domain",
+        "label": "Domain",
+        "type": "query",
+        "datasource": { "type": "influxdb", "uid": "influxdb-telemetry" },
+        "query": "SELECT DISTINCT domain FROM \"$table\" ORDER BY domain",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "sort": 1,
+        "current": { "text": "All", "value": "$__all" }
+      },
+      {
+        "name": "equipment",
+        "label": "Equipment",
+        "type": "query",
+        "datasource": { "type": "influxdb", "uid": "influxdb-telemetry" },
+        "query": "SELECT DISTINCT equipment FROM \"$table\" WHERE domain IN (${domain:singlequote}) ORDER BY equipment",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "sort": 1,
+        "current": { "text": "All", "value": "$__all" }
+      },
+      {
+        "name": "qualifier",
+        "label": "Qualifier",
+        "type": "query",
+        "datasource": { "type": "influxdb", "uid": "influxdb-telemetry" },
+        "query": "SELECT DISTINCT COALESCE(qualifier, '(none)') AS qualifier FROM \"$table\" WHERE domain IN (${domain:singlequote}) AND equipment IN (${equipment:singlequote}) ORDER BY qualifier",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "sort": 1,
+        "current": { "text": "All", "value": "$__all" }
+      },
+      {
+        "name": "agent_id",
+        "label": "Agent",
+        "type": "query",
+        "datasource": { "type": "influxdb", "uid": "influxdb-telemetry" },
+        "query": "SELECT DISTINCT agent_id FROM \"$table\" ORDER BY agent_id",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "sort": 1,
+        "current": { "text": "All", "value": "$__all" }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Rows in range — $table",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-telemetry" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT count(*) AS rows FROM \"$table\" WHERE time >= $__timeFrom() AND time <= $__timeTo() AND agent_id IN (${agent_id:singlequote}) AND domain IN (${domain:singlequote}) AND equipment IN (${equipment:singlequote}) AND COALESCE(qualifier, '(none)') IN (${qualifier:singlequote})",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Distinct equipment — $table",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-telemetry" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT count(DISTINCT equipment) AS n FROM \"$table\" WHERE time >= $__timeFrom() AND time <= $__timeTo() AND agent_id IN (${agent_id:singlequote}) AND domain IN (${domain:singlequote}) AND equipment IN (${equipment:singlequote}) AND COALESCE(qualifier, '(none)') IN (${qualifier:singlequote})",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "$table — value over time",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 4 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-telemetry" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT time, value, concat_ws('/', equipment, field_id) AS series FROM \"$table\" WHERE time >= $__timeFrom() AND time <= $__timeTo() AND agent_id IN (${agent_id:singlequote}) AND domain IN (${domain:singlequote}) AND equipment IN (${equipment:singlequote}) AND COALESCE(qualifier, '(none)') IN (${qualifier:singlequote}) ORDER BY time",
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "spanNulls": false
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "showLegend": true, "calcs": ["lastNotNull", "min", "max", "mean"] },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      }
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "title": "$table — latest rows",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 14 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-telemetry" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawSql": "SELECT time, domain, equipment, qualifier, field_id, agent_id, value FROM \"$table\" WHERE time >= $__timeFrom() AND time <= $__timeTo() AND agent_id IN (${agent_id:singlequote}) AND domain IN (${domain:singlequote}) AND equipment IN (${equipment:singlequote}) AND COALESCE(qualifier, '(none)') IN (${qualifier:singlequote}) ORDER BY time DESC LIMIT 100",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "footer": { "show": false, "reducer": ["sum"], "fields": "" }
+      },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto" } },
+        "overrides": []
+      }
+    }
+  ]
+}
