@@ -1,6 +1,6 @@
 # Flexbit IoT Agent — Integration Guide
 
-**Agent version:** 0.1.1
+**Agent version:** 0.2.0
 **Document date:** 2026-05-20
 
 ---
