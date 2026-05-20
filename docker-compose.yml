@@ -80,7 +80,7 @@ services:
 
   agent:
     # Override IOT_AGENT_IMAGE in .env to pin a specific version, e.g.
-    #   IOT_AGENT_IMAGE=ghcr.io/lupinskilukasz/flexbit-iot-agent:0.1.0
+    #   IOT_AGENT_IMAGE=ghcr.io/lupinskilukasz/flexbit-iot-agent:0.1.1
     image: ${IOT_AGENT_IMAGE:-ghcr.io/lupinskilukasz/flexbit-iot-agent:latest}
     container_name: iot-agent
     depends_on:

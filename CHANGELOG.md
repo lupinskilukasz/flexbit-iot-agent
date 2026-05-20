@@ -10,6 +10,32 @@ Each version listed below corresponds to a container image tag published at
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-05-20
+
+Bug-fix and admin-UI polish release. No changes to ingest, storage or public contracts.
+
+### Fixed
+
+- **Grafana panels empty for 3-segment field ids** (`frequency`, `status`, `temp`).
+  - `LineProtocolMapper` previously omitted the `qualifier` tag when `FieldId.Qualifier == null`, so tables for signals without a qualifier were created without a `qualifier` column. The provisioned dashboard's queries (`COALESCE(qualifier, '(none)') …` in template variables and panel filters) then failed with `Schema error: No field named qualifier`, leaving panels empty even when rows existed.
+  - Mapper now always emits `qualifier`, using the sentinel value `(none)` when the field id has no qualifier segment. This matches the dashboard's `COALESCE(qualifier, '(none)')` semantics 1:1, so the filter dropdown still shows `(none)` for unqualified signals.
+- **AgentId switch confirmation did not sign the user in** (`Components/Pages/Login.razor`).
+  - The confirmation step used a second `EditForm` (`FormName="confirm"`) that was only present in the render tree while `_requiresConfirm == true`. In stateless Blazor SSR, each post-back creates a fresh component with `_requiresConfirm = false`, so on confirm submit the framework could not dispatch the matching `OnValidSubmit`, the user was returned to the login form, and no cookie was issued.
+  - Refactored to a single `FormName="login"` form with conditional UI inside. A single `HandleSubmitAsync` handler now branches on `Model.Confirmed`, so the post-back dispatch always lands on a form that is in the render tree.
+
+### Added
+
+- **Flexbit branding in the admin UI** (`Components/Layout/LoginLayout.razor`, `Components/Layout/AdminLayout.razor`).
+  - Login card displays `flexbit.png` (RCL static asset under `_content/Agent.Modules.Admin/`) above the `IoT Agent` heading.
+  - Admin top bar displays the logo as a white-chip badge next to the `IoT Agent` title, sized to read clearly against the dark header background.
+- **Browser-local date formatting in the admin UI** (`wwwroot/admin.js`, `Components/App.razor`, `Status.razor`, `Settings.razor`).
+  - The agent container runs in UTC; `DateTime.ToLocalTime()` on the server therefore had no effect. Timestamps in Status and Settings are now emitted as `<time datetime="…Z">` and rewritten in the browser to the operator's local time zone using the fixed `YYYY-MM-DD HH:MM:SS` format. A `MutationObserver` re-applies the formatting when Blazor re-renders the Status page on its periodic refresh.
+
+### Changed
+
+- **Grafana iframe** (`Components/Pages/Grafana.razor`) — switched from `?kiosk=tv` to `?kiosk`, so the embedded dashboard hides all chrome (side menu, navigation tabs, breadcrumbs, time picker) and shows only panels.
+
+
 ## [0.1.0] — 2026-04-27
 
 First public release of the agent. Captures the surface that integrators can

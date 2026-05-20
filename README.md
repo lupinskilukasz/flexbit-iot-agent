@@ -9,7 +9,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/.NET-10-512BD4" alt=".NET 10"/>
-  <img src="https://img.shields.io/badge/version-0.1.0-blue" alt="version"/>
+  <img src="https://img.shields.io/badge/version-0.1.1-blue" alt="version"/>
   <img src="https://img.shields.io/badge/license-see%20LICENSE-lightgrey" alt="license"/>
   <img src="https://img.shields.io/badge/container-ghcr.io-2088FF" alt="container"/>
 </p>
@@ -311,7 +311,7 @@ For runtime diagnostics, the agent exposes:
 
 ## 12. Project status & roadmap
 
-The agent is at **0.1.0**. It is feature-complete for one-way telemetry
+The agent is at **0.1.1**. It is feature-complete for one-way telemetry
 ingest, persistence, visualisation, and operator administration. Items on the
 roadmap (described in [`INTEGRATION.md`, §9](INTEGRATION.md#9-roadmap)):
 

@@ -1,7 +1,7 @@
 # Flexbit IoT Agent — Integration Guide
 
-**Agent version:** 0.1.0
-**Document date:** 2026-04-27
+**Agent version:** 0.1.1
+**Document date:** 2026-05-20
 
 ---
 
@@ -371,7 +371,7 @@ Embeds the provisioned Grafana dashboard `iot-agent-overview` in an iframe with 
 Iframe URL pattern:
 
 ```
-{Admin:GrafanaBaseUrl}/d/iot-agent-overview?kiosk=tv&var-table=power&var-agent_id={agent_id}&from=now-1h&to=now&refresh=10s
+{Admin:GrafanaBaseUrl}/d/iot-agent-overview?kiosk&var-table=power&var-agent_id={agent_id}&from=now-1h&to=now&refresh=10s
 ```
 
 For this to render the embed, your Grafana must allow embedding (in the bundled `docker-compose.yml`: `GF_SECURITY_ALLOW_EMBEDDING=true` and anonymous viewer access).
