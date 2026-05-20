@@ -1,4 +1,18 @@
-# Flexbit IoT Agent
+<div align="center">
+  <img src="flexbit.png" height="80" alt="Flexbit"/>
+  &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+  <img src="electrum.png" height="32" alt="electrum"/>
+</div>
+
+<h1 align="center">Flexbit IoT Agent</h1>
+<p align="center"><em>Edge-box agent for distributed energy resource telemetry</em></p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/.NET-10-512BD4" alt=".NET 10"/>
+  <img src="https://img.shields.io/badge/version-0.1.0-blue" alt="version"/>
+  <img src="https://img.shields.io/badge/license-see%20LICENSE-lightgrey" alt="license"/>
+  <img src="https://img.shields.io/badge/container-ghcr.io-2088FF" alt="container"/>
+</p>
 
 > Edge-box agent for collecting telemetry from distributed energy resources
 > (PV inverters, BESS, grid meters) and forwarding it to a local time-series
@@ -30,7 +44,8 @@ ingestion endpoint during development.
 11. [Documentation](#11-documentation)
 12. [Project status & roadmap](#12-project-status--roadmap)
 13. [Support & contact](#13-support--contact)
-14. [License](#14-license)
+14. [Contributors](#14-contributors)
+15. [License](#15-license)
 
 ---
 
@@ -292,7 +307,6 @@ For runtime diagnostics, the agent exposes:
 - **[`INTEGRATION.md`](INTEGRATION.md)** — full integrator reference: REST
   endpoints, MQTT topics, admin UI, configuration, diagnostics, roadmap.
 - **[`CHANGELOG.md`](CHANGELOG.md)** — released versions.
-- **[`PUBLISHING.md`](PUBLISHING.md)** — for Flexbit maintainers only:
   how a new agent image is built and pushed to GHCR.
 
 ## 12. Project status & roadmap
@@ -316,9 +330,19 @@ partner-facing ingress as the roadmap items land.
 This repository is part of the **Flexbit** project. Please open an issue on
 GitHub for bug reports, integration questions, or roadmap feedback.
 
-## 14. License
+<table border="0">
+  <tr>
+    <td><img src="https://api.qrserver.com/v1/create-qr-code/?data=https://github.com/lupinskilukasz/flexbit-iot-agent&size=200x200" height="100" alt="QR"/></td>
+    <td><sub>Scan to open the repository on GitHub:<br/><code>github.com/lupinskilukasz/flexbit-iot-agent</code></sub></td>
+  </tr>
+</table>
+
+## 14. Contributors
+
+| Name             | Role        | Contact                                       |
+|------------------|-------------|-----------------------------------------------|
+| Lukasz Lupinski  | Maintainer  | [llupinski@electrum.pl](mailto:llupinski@electrum.pl) |
+
+## 15. License
 
 See [`LICENSE`](LICENSE).
-
-
-![QR](https://api.qrserver.com/v1/create-qr-code/?data=https://github.com/lupinskilukasz/flexbit-iot-agent&size=200x200)
