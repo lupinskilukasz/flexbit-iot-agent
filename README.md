@@ -104,7 +104,7 @@ The full surface is documented in [`INTEGRATION.md`](INTEGRATION.md).
 | Docker Engine    | **24.0 or newer**                                                        |
 | Docker Compose   | **v2** (the `docker compose` plugin, not the legacy `docker-compose` binary) |
 | CPU              | x86_64 or arm64. The agent image is published as a multi-arch manifest. |
-| RAM              | **≥ 2 GB** free for the whole stack (agent is capped at 512 MB, the rest is mostly Grafana + Influx) |
+| RAM              | **≥ 2 GB** free for the whole stack |
 | Disk             | **≥ 2 GB** free for container images and persistent volumes              |
 | Open ports       | `8080`, `1883`, `3000`, `8181` on `localhost` — see the table below      |
 | Outbound network | Access to `ghcr.io`, `docker.io` (or `mcr.microsoft.com` mirrors) to pull images |
